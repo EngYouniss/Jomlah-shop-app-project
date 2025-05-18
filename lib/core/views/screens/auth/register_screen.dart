@@ -11,8 +11,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _scrollController = ScrollController();
+  final formKey = GlobalKey<FormState>();
+  final scrollController = ScrollController();
   AuthVM authVM = AuthVM();
 
   String userType = 'wholesale';
@@ -20,8 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _register() async {
-    if (_formKey.currentState!.validate()) {
+  void register() async {
+    if (formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus();
 
       bool created = await authVM.createUserAccount(
@@ -44,50 +44,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.primary.withOpacity(0.1),
-              theme.colorScheme.primary.withOpacity(0.05),
-              Colors.transparent,
-            ],
-          ),
-        ),
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
             child: SingleChildScrollView(
-              controller: _scrollController,
+              controller: scrollController,
               child: Column(
                 children: [
-                  // Header Section
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      'بازار فلو',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
+SizedBox(height: 70,),
+
 
                   // Form Section with Card
                   Padding(
@@ -103,12 +73,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isDarkMode ? theme.colorScheme.surface : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                         child: Form(
-                          key: _formKey,
+                          key: formKey,
                           child: Column(
                             children: [
                               Text(
@@ -200,7 +169,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hint: 'الاسم الكامل',
                                 icon: Icons.person_outline,
                                 controller: nameController,
-                                textInputAction: TextInputAction.next,
                                 validator: (value) => value == null || value.isEmpty ? 'يرجى إدخال الاسم' : null,
                               ),
                               const SizedBox(height: 8),
@@ -222,20 +190,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 icon: Icons.lock_outlined,
                                 controller: passwordController,
                                 obscureText: true,
-                                textInputAction: TextInputAction.done,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) return 'يرجى إدخال كلمة المرور';
                                   if (value.length < 6) return 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
                                   return null;
                                 },
-                                onEditingComplete: _register,
                               ),
                               const SizedBox(height: 16),
 
                               // Register Button
                               CustomButton(
                                 text: 'إنشاء الحساب',
-                                onPressed: _register,
+                                onPressed: register,
                               ),
                             ],
                           ),

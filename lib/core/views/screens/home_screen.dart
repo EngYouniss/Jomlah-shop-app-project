@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:bazar_flow/core/models/product.dart';
 import 'package:bazar_flow/core/viewmodels/auth_vm.dart';
+import 'package:bazar_flow/core/views/screens/cart_screen.dart';
 import 'package:bazar_flow/core/views/screens/parts/oils_screen.dart';
-import 'package:bazar_flow/core/views/screens/parts/rice_screen.dart';
+import 'package:bazar_flow/core/views/screens/parts/all_product.dart';
 import 'package:bazar_flow/core/views/screens/profile_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -22,23 +24,26 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndexBottomBar = 0;
   AuthVM authVM = AuthVM();
-
   int _selectedCategoryIndex = 0;
 
-  final List<Map<String, dynamic>> foodCategories = [
-    {"name": "أرز", "icon": Icons.rice_bowl},
-    {"name": "معلبات", "icon": Icons.food_bank},
-    {"name": "ألبان", "icon": Icons.icecream},
-    {"name": "زيوت", "icon": Icons.oil_barrel},
-    {"name": "مشروبات", "icon": Icons.local_drink},
-    {"name": "مخبوزات", "icon": Icons.bakery_dining},
+  final List<Map<String, dynamic>> marketCategories = [
+    {"name": "الكل", "icon": Icons.all_inbox},
+    {"name": "إلكترونيات", "icon": Icons.electrical_services},
+    {"name": "مستحضرات تجميل", "icon": Icons.brush},
+    {"name": "ملابس", "icon": Icons.checkroom},
+    {"name": "أجهزة منزلية", "icon": Icons.kitchen},
+    {"name": "مستلزمات الأطفال", "icon": Icons.child_care},
+    {"name": "كتب وأدوات مكتبية", "icon": Icons.menu_book},
+    {"name": "ألعاب وهوايات", "icon": Icons.toys},
+    {"name": "رياضة ولياقة", "icon": Icons.sports_soccer},
+    {"name": "سيارات وقطع غيار", "icon": Icons.directions_car},
   ];
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      _buildHomeContent(),
-      const MyRequestsScreen(),
+      buildHomeContent(),
+      const CartScreen(),
       ProfileScreen(),
     ];
 
@@ -49,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
         ),
         title:
-            const Text("مؤسسة بن ذياب", style: TextStyle(color: Colors.white)),
+            const Text("تسوق", style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.green.shade500,
         elevation: 4,
@@ -87,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: "طلباتي",
+              icon: Icon(Icons.shopping_cart_checkout_rounded),
+              label: "السلة",
               backgroundColor: Colors.green,
             ),
             BottomNavigationBarItem(
@@ -102,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeContent() {
+  Widget buildHomeContent() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -117,21 +122,32 @@ class _HomeScreenState extends State<HomeScreen> {
               isLoop: true,
               indicatorColor: Colors.green,
               children: [
-                Image.asset("assets/images/1.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/2.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/3.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/4.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/5.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/8.jpg", fit: BoxFit.cover),
-                Image.asset("assets/images/9.png", fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/fragrances/gucci-bloom-eau-de/1.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/fragrances/dolce-shine-eau-de/1.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/fragrances/dior-j'adore/3.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/groceries/ice-cream/4.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-sofa/3.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/fragrances/chanel-coco-noir-eau-de/2.webp",
+                    fit: BoxFit.cover),
+                Image.network(
+                    "https://cdn.dummyjson.com/product-images/fragrances/chanel-coco-noir-eau-de/1.webp",
+                    fit: BoxFit.cover),
               ],
             ),
           ),
 
           const SizedBox(height: 20),
-
-          const Text("أقسام المواد الغذائية",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
 
           const SizedBox(height: 12),
 
@@ -139,10 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 85,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: foodCategories.length,
+              itemCount: marketCategories.length,
               itemBuilder: (context, index) {
                 bool isSelected = index == _selectedCategoryIndex;
-                final cat = foodCategories[index];
+                final cat = marketCategories[index];
 
                 return GestureDetector(
                   onTap: () => setState(() => _selectedCategoryIndex = index),
@@ -153,12 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.green.shade100 : Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade300,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2))
-                      ],
                       border: isSelected
                           ? Border.all(color: Colors.green, width: 2)
                           : null,
@@ -185,26 +195,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(height: 24),
 
-          _buildCategoryContent(_selectedCategoryIndex),
+          buildCategoryContent(_selectedCategoryIndex),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryContent(int index) {
-    final category = foodCategories[index];
+  Widget buildCategoryContent(int index) {
+    final category = marketCategories[index];
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.shade300,
-              blurRadius: 6,
-              offset: const Offset(0, 3))
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,10 +231,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          if (category["name"] == "زيوت")
-            OilsScreen()
-          else if (category["name"] == "أرز")
-            RiceScreen()
+          if (category["name"] == "إلكترونيات")
+            SizedBox(height: 400, width: 300, child: AllProducts())
+          else if (category["name"] == "الكل")
+            SizedBox(height: 400, width: 300, child: AllProducts())
+          else if (category["name"] == "ملابس")
+            SizedBox(height: 400, width: 300, child: AllProducts())
+            else if (category["name"] == "مستحضرات تجميل")
+            SizedBox(height: 400, width: 300, child: AllProducts())
           else
             const Text("لا توجد منتجات لهذا القسم حالياً"),
         ],
@@ -270,8 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () async {
                           XFile? image = await picker.pickImage(
                               source: ImageSource.gallery);
-                          if (image != null)
+                          if (image != null) {
                             setState(() => pickedImage = image);
+                          }
                         },
                         child: const Text("اختيار صورة"),
                       ),
@@ -301,11 +310,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       await ref.putFile(File(pickedImage!.path));
                       String imageUrl = await ref.getDownloadURL();
 
+                      // طباعة الرابط أو يمكنك استخدامه حسب حاجتك
                       print("تم رفع الصورة بنجاح، الرابط: $imageUrl");
 
                       Navigator.pop(context);
+
+                      // استخدم سياق أعلى لعرض Snackbar بعد غلق الـ Dialog
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(content: Text("تم إضافة المنتج بنجاح.")),
+                      );
                     } catch (e) {
-                      print("خطأ في رفع الصورة: $e");
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(content: Text("خطأ في رفع الصورة: $e")),
+                      );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

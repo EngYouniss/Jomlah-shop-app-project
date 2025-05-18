@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthVM {
   User? user;
@@ -7,10 +8,10 @@ class AuthVM {
   Future<bool> loginByEmailAndBassowrd(String email, String password) async {
     try {
       await auth.signInWithEmailAndPassword(email: email, password: password);
-      return true; // ✅ تم تسجيل الدخول بنجاح
+      return true;
     } catch (e) {
       print('خطأ أثناء تسجيل الدخول: $e');
-      return false; // ❌ فشل
+      return false;
     }
   }
 
@@ -19,19 +20,17 @@ class AuthVM {
     try {
       await auth.createUserWithEmailAndPassword(email: email, password: password);
       user = auth.currentUser;
-
       await user!.updateDisplayName(name);
-
-      // يمكنك هنا تخزين معلومات المستخدم في Firestore إذا أردت.
-
-      return true; // ✅ النجاح
+      return true;
     } catch (e) {
       print('حدث خطأ أثناء إنشاء الحساب: $e');
-      return false; // ❌ فشل
+      return false;
     }
   }
 
-  logout(){
+  logout()async{
+    SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
+sharedPreferences.remove("isLogged");
     auth.signOut();
   }
 

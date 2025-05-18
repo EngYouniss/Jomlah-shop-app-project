@@ -2,30 +2,31 @@ import 'package:bazar_flow/core/viewmodels/auth_vm.dart';
 import 'package:bazar_flow/core/views/widgets/custom_button.dart';
 import 'package:bazar_flow/core/views/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+class LoginScreenState extends State<LoginScreen> {
+  final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   AuthVM authVM = AuthVM();
+  Future<void> login() async {
+    SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
 
-  void _login() async {
-    if (_formKey.currentState!.validate()) {
-      FocusScope.of(context).unfocus();
-
+    if (formKey.currentState!.validate()) {
       bool isLogged = await authVM.loginByEmailAndBassowrd(
         emailController.text,
         passwordController.text,
       );
 
       if (isLogged) {
+        await sharedPreferences.setBool("isLogged", true);
         print("تم تسجيل الدخول");
         Navigator.pushReplacementNamed(context, '/home');
       } else {
@@ -34,13 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     }
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -54,12 +48,16 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             // لا تستخدم MainAxisAlignment.center مع SingleChildScrollView
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              Text(
-                'جملة شوب',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(90),
+                  bottomRight: Radius.circular(90),
+                ),
+                child: Image.asset(
+                  "assets/images/logo.png",
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 40),
@@ -76,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -121,14 +119,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                             return null;
                           },
-                          onEditingComplete: _login,
+                          onEditingComplete: login,
                         ),
 
                         const SizedBox(height: 24),
 
                         CustomButton(
                           text: 'تسجيل الدخول',
-                          onPressed: _login,
+                          onPressed: login,
                         ),
                       ],
                     ),

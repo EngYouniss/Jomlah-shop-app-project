@@ -1,6 +1,8 @@
+import 'package:bazar_flow/core/viewmodels/cart_vm.dart';
 import 'package:bazar_flow/core/views/screens/add_products_screen.dart';
 import 'package:bazar_flow/core/views/screens/auth/login_screen.dart';
 import 'package:bazar_flow/core/views/screens/auth/register_screen.dart';
+import 'package:bazar_flow/core/views/screens/cart_screen.dart';
 import 'package:bazar_flow/core/views/screens/home_screen.dart';
 import 'package:bazar_flow/core/views/screens/no_connection.dart';
 import 'package:bazar_flow/core/views/screens/products_screen.dart';
@@ -8,15 +10,24 @@ import 'package:bazar_flow/core/views/screens/splash_screen.dart';
 import 'package:bazar_flow/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FirebaseApp app=await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CartVM()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -43,6 +54,7 @@ class MyApp extends StatelessWidget {
         '/login':(context)=>LoginScreen(),
         '/register':(context)=>RegisterScreen(),
         '/add_product':(context)=>AddProductsScreen(),
+        '/cart':(context)=>CartScreen(),
       },
     );
   }
